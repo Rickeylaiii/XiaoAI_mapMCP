@@ -3,6 +3,8 @@
 A powerful MCP tool that integrates with Amap API services, allowing AI to access geographic information, weather data, and route planning.
 
 一个强大的MCP工具，集成了高德地图API服务，使AI能够访问地理信息、天气数据和路线规划。
+![image](https://github.com/user-attachments/assets/2a8f95c0-f69e-4da8-b059-c04faaa9250a)
+![image](https://github.com/user-attachments/assets/62974a24-02fc-4efe-948d-30c8edab707a)
 
 ## Overview | 概述
 
@@ -23,6 +25,7 @@ MCP-MapNAVI基于模型上下文协议(MCP)，允许AI语言模型与外部地�
 1. Install dependencies | 安装依赖:
 ```bash
 pip install -r requirements.txt
+```
 
 2. Set up environment variables | 设置环境变量:
 ```bash
