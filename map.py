@@ -2,14 +2,23 @@
 from mcp.server.fastmcp import FastMCP
 import requests
 from typing import List, Dict, Any, Optional
+import logging
+import sys
+
+logger = logging.getLogger('MapNavigator')
+
+# Fix UTF-8 encoding for Windows console
+if sys.platform == 'win32':
+    sys.stderr.reconfigure(encoding='utf-8')
+    sys.stdout.reconfigure(encoding='utf-8')
 
 mcp = FastMCP("MapNavigator")
+MAP_API_KEY = "...your_api_key_here..."  # Replace with your actual Amap API key
 
-YOUR_MAP_API_KEY = "..."
 @mcp.tool()
 def geocode(address: str, city: str = "") -> dict:
     """Convert address to geographic coordinates using Amap API."""
-    api_key = YOUR_MAP_API_KEY
+    api_key = MAP_API_KEY
     url = "https://restapi.amap.com/v3/geocode/geo"
     params = {
         "address": address,
@@ -20,17 +29,16 @@ def geocode(address: str, city: str = "") -> dict:
     
     try:
         response = requests.get(url, params=params)
-        
         data = response.json()
-        print(f"Geocode API status: {data.get('status')}") 
+        logger.info(f"Geocode API status: {data.get('status')}") 
         return data
     except Exception as e:
-        print(f"Error calling geocode API: {e}")
+        logger.error(f"Error calling geocode API: {e}")
         return {"status": "0", "info": str(e)}
 @mcp.tool()
 def get_weather(city: str) -> dict:
     """Get weather information for a city using Amap API."""
-    api_key = YOUR_MAP_API_KEY
+    api_key = MAP_API_KEY
     url = "https://restapi.amap.com/v3/weather/weatherInfo"
     params = {
         "city": city,
@@ -40,12 +48,11 @@ def get_weather(city: str) -> dict:
     
     try:
         response = requests.get(url, params=params)
-        
         data = response.json()
-        print(f"Weather API status: {data.get('status')}")
+        logger.info(f"Weather API status: {data.get('status')}")
         return data
     except Exception as e:
-        print(f"Error calling weather API: {e}")
+        logger.error(f"Error calling weather API: {e}")
         return {"status": "0", "info": str(e)}
 
 @mcp.tool()
@@ -64,7 +71,7 @@ def plan_driving_route(origin: str, destination: str, waypoints: str = "", strat
     Returns:
         Route planning information, including distance, time, and detailed route segments
     """
-    api_key = YOUR_MAP_API_KEY
+    api_key = MAP_API_KEY
     url = "https://restapi.amap.com/v3/direction/driving"
     params = {
         "origin": origin,
@@ -85,10 +92,51 @@ def plan_driving_route(origin: str, destination: str, waypoints: str = "", strat
         response = requests.get(url, params=params)
         response.encoding = 'utf-8'
         data = response.json()
-        print(f"Driving route planning API status: {data.get('status')}")
+        logger.info(f"Driving route planning API status: {data.get('status')}")
         return data
     except Exception as e:
-        print(f"Error calling driving route planning API: {e}")
+        logger.error(f"Error calling driving route planning API: {e}")
+        return {"status": "0", "info": str(e)}
+
+@mcp.tool()
+def input_tips(keywords: str, location: str = "", city: str = "", types: str = "", datatype: str = "all") -> dict:
+    """Provide input suggestion service, returning matching POI information based on keywords
+    
+    Parameters:
+        keywords: Query keyword, e.g. "McDonald's"
+        location: Optional location coordinates, format "longitude,latitude", e.g. "113.914352,22.725713"
+        city: Query city, e.g. "Guangming District, Shenzhen"
+        types: Query POI type
+        datatype: Type of data to return, default "all" (all types)
+        
+    Returns:
+        List of matching location information
+    """
+    api_key = MAP_API_KEY
+    url = "https://restapi.amap.com/v3/assistant/inputtips"
+    params = {
+        "keywords": keywords,
+        "key": api_key,
+        "output": "json",
+        "datatype": datatype
+    }
+    
+    if location:
+        params["location"] = location
+        
+    if city:
+        params["city"] = city
+        
+    if types:
+        params["types"] = types
+    
+    try:
+        response = requests.get(url, params=params)
+        data = response.json()
+        logger.info(f"Input tips API status: {data.get('status')}")
+        return data
+    except Exception as e:
+        logger.error(f"Error calling input tips API: {e}")
         return {"status": "0", "info": str(e)}
 
 if __name__ == "__main__":
